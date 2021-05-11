@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { getHomePage, postFile } from "./apiCalls/apiCalls";
 import AutoUploadImage from "./component/AutoUploadImage";
+import decoder from "base-64";
 
 const App = () => {
   const [newImage, setNewImage] = useState();
-  const [selectedFile, setSelecetedFile] = useState();
+  const [predict, setPredict] = useState();
+  const [base64, setBase64] = useState();
 
   const onChangeFile = (e) => {
     if (e.target.files.length < 1) {
@@ -14,17 +16,24 @@ const App = () => {
     const fileReader = new FileReader();
     fileReader.onloadend = () => {
       setNewImage(fileReader.result);
-      console.log(file);
       uploadFile(file);
     };
     fileReader.readAsDataURL(file);
   };
 
   const uploadFile = async (file) => {
+    console.log(file);
     const attachment = new FormData();
     attachment.append("photo", file);
     const response = await postFile(attachment);
-    console.log(response);
+    console.log(response.data);
+    let string = response.data.response.base.split(": b")[1];
+
+    string = string.replaceAll("'", "");
+
+    setBase64(string);
+    setPredict(response.data.response.predict);
+    console.log(string);
   };
 
   return (
@@ -39,22 +48,33 @@ const App = () => {
           Image Caption Generator
         </span>
         <div style={{ height: "15%", width: "15%" }} className="card p-1 ml-4">
-          <form className="form-group" encType="multipart/form-data">
+          <form
+            onSubmit={uploadFile}
+            className="form-group"
+            encType="multipart/form-data"
+          >
             <input
               className="form-control-file"
               onChange={onChangeFile}
               type="file"
               name="photo"
             />
+            <button type="submit" className="btn btn-primary">
+              Submit
+            </button>
           </form>
           <AutoUploadImage image={newImage}></AutoUploadImage>
         </div>
       </div>
-      <div className="card mt-4 p-4" style={{ width: "32rem" }}>
-        <img className="card-img-top" alt="..."></img>
+      <div className="card mt-4 " style={{ width: "64rem" }}>
         <div className="card-body">
-          <p className="card-text">blabla</p>
+          <p className="card-text">{predict}</p>
         </div>
+        <img
+          className="card-img-top"
+          src={`data:image/png;base64,${base64}`}
+          alt=""
+        ></img>
       </div>
     </div>
   );
