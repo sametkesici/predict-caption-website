@@ -3,6 +3,8 @@ import { getHomePage, postFile } from "./apiCalls/apiCalls";
 import AutoUploadImage from "./component/AutoUploadImage";
 import ReactWordcloud from "react-wordcloud";
 import Speech from "react-speech";
+import { Translator, Translate } from "react-auto-translate";
+import ReactLogo from "./volume.svg";
 
 const App = () => {
   const [newImage, setNewImage] = useState();
@@ -40,18 +42,15 @@ const App = () => {
   };
 
   const uploadFile = async (file) => {
-    console.log(file);
     const attachment = new FormData();
     attachment.append("photo", file);
     const response = await postFile(attachment);
-    console.log(response.data);
     let string = response.data.response.base.split(": b")[1];
 
     string = string.replaceAll("'", "");
 
     setBase64(string);
     setPredict(response.data.response.predict);
-    console.log(string);
   };
 
   const options = {
@@ -100,14 +99,30 @@ const App = () => {
           <div className="card-body">
             <p className="card-text">{predict}</p>
             {predict ? (
-              <Speech
-                text={predict.split("<")[0].split(":")[1]}
-                textAsButton="true"
-                lang="EN-US"
-                voice="Google UK English Female"
-                pitch="1"
-                rate="0.9"
-              />
+              <div>
+                <Speech
+                  text={predict.split("<")[0].split(":")[1]}
+                  textAsButton="true"
+                  lang="EN-US"
+                  voice="Google UK English Female"
+                  pitch="1"
+                  rate="0.9"
+                />
+                <img src={ReactLogo} width="32px" height="32px"></img>
+              </div>
+            ) : (
+              ""
+            )}
+            {predict ? (
+              <Translator
+                from="en"
+                to="tr"
+                googleApiKey="AIzaSyDT5UPzbply9mMWQwwQx8CRkj4yICoM98A"
+              >
+                <h1>
+                  <Translate>{predict.split("<")[0].split(":")[1]}</Translate>
+                </h1>
+              </Translator>
             ) : (
               ""
             )}
