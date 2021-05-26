@@ -2,7 +2,7 @@ import React from "react";
 
 const AutoUploadImage = ({ image }) => {
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ width: 180 }}>
       <img className="img-thumbnail" src={image} />
       <div className="overlay">
         <div className="d-flex justify-content-center h-100">
